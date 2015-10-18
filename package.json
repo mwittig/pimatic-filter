@@ -1,0 +1,48 @@
+{
+  "name": "pimatic-filter",
+  "description": "Pimatic Plugin which provides various filtering functions for sensor data",
+  "author": {
+    "name": "Marcus Wittig",
+    "url": "https://github.com/mwittig"
+  },
+  "main": "filter",
+  "files": [
+    "filter.coffee",
+    "filter-config-schema.coffee",
+    "device-config-schema.coffee",
+    "LICENSE",
+    "README.md"
+  ],
+  "keywords": [
+    "Digital Filter",
+    "Digital Smoothing",
+    "Pimatic"
+  ],
+  "version": "0.8.0",
+  "homepage": "https://github.com/mwittig/pimatic-filter/tree/master",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mwittig/pimatic-filter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mwittig/pimatic-filter/issues"
+  },
+  "license": "AGPL-3.0",
+  "maintainers": [
+    {
+      "name": "mwittig",
+      "url": "https://github.com/mwittig"
+    }
+  ],
+  "configSchema": "filter-config-schema.coffee",
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "pimatic": "0.8.*"
+  },
+  "engines": {
+    "node": ">0.8.x",
+    "npm": ">1.1.x"
+  }
+}
