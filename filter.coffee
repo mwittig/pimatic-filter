@@ -24,16 +24,15 @@ module.exports = (env) ->
 
   class SimpleMovingAverageFilter extends env.devices.Device
 
-    filterValues: []
-    sum: 0.0
-    mean: 0.0
-    attributeValue: null
-
     constructor: (@config, lastState) ->
       @id = config.id
       @name = config.name
       @size = config.size
       @output = config.output
+      @filterValues = []
+      @sum = 0.0
+      @mean = 0.0
+      @attributeValue = null
 
       @varManager = plugin.framework.variableManager #so you get the variableManager
       @_exprChangeListeners = []
@@ -44,7 +43,6 @@ module.exports = (env) ->
       if lastState?[name]?
         @attributeValue = lastState[name]
 
-      #@attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")
@@ -101,15 +99,14 @@ module.exports = (env) ->
 
   class SimpleTruncatedMeanFilter extends env.devices.Device
 
-    filterValues: []
-    mean: 0.0
-    attributeValue: null
-
     constructor: (@config, lastState) ->
       @id = config.id
       @name = config.name
       @size = config.size
       @output = config.output
+      @filterValues = []
+      @mean = 0.0
+      @attributeValue = null
 
       @varManager = plugin.framework.variableManager #so you get the variableManager
       @_exprChangeListeners = []
@@ -120,7 +117,6 @@ module.exports = (env) ->
       if lastState?[name]?
         @attributeValue = lastState[name]
 
-      #@attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")

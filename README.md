@@ -29,7 +29,7 @@ number of inputs provided.
 The Simple Moving Average filter, is the unweighted mean of a given number of previous sensor values processed. For a
 general discussion see [Wikipedia on Moving Average](https://en.wikipedia.org/wiki/Moving_average).
 
-The number previous sensor values processed by the filter is also called sliding window. You can specify the "size" of
+The number previous sensor values processed by the filter is called sliding window. You can specify the "size" of
 the sliding window. By default, the window takes five elements. Initially, when the number of data values processed is
 smaller than the window size, the mean will be calculated from the existing values.
 
@@ -57,14 +57,14 @@ Note, however, the resulting value must be a number to be processed by the filte
 ### Simple Truncated Mean
 
 The Simple Truncated Mean is a truncated mean, where the highest and lowest value of a given number of previous
-sensor values is disregarded and the remaining values are used to calculate the arithmetic mean. For a
+sensor values is disregarded (truncated) and the remaining values are used to calculate the arithmetic mean. For a
 general discussion see [Wikipedia on Truncated Mean](https://en.wikipedia.org/wiki/Truncated_mean).
 
-The number previous sensor values processed by the filter is also called sliding window. You can specify the "size" of
+The number previous sensor values processed by the filter is called sliding window. You can specify the "size" of
 the sliding window. By default, the window takes five elements. Initially, when the number of data values processed is
 smaller than the window size the mean will be calculated, as follows:
- * if there are less than three values no truncating is perform and the mean is calculated from the existing values
- * if there are three or more values truncating is performed and the mean is calculated from the existing values.
+ * if there are less than three values,  no truncating is performed and the mean is calculated from the existing values
+ * if there are three or more values, truncating is performed and the mean is calculated from the remaining values.
 
 The "output" property defines the attribute which represents the output produced by the filter. It must have a "name"
 and a "expression" which defines a reference to the input value. In the simplest case, the expression contains a
