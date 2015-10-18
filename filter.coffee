@@ -41,7 +41,7 @@ module.exports = (env) ->
       name = @output.name
       info = null
 
-      if lastState[name]?
+      if lastState?[name]?
         @attributeValue = lastState[name]
 
       #@attributes = _.cloneDeep(@attributes)
@@ -117,7 +117,7 @@ module.exports = (env) ->
       name = @output.name
       info = null
 
-      if lastState[name]?
+      if lastState?[name]?
         @attributeValue = lastState[name]
 
       #@attributes = _.cloneDeep(@attributes)
