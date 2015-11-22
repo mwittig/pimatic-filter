@@ -32,17 +32,12 @@ module.exports = (env) ->
       @filterValues = []
       @sum = 0.0
       @mean = 0.0
-      @attributeValue = null
 
       @varManager = plugin.framework.variableManager #so you get the variableManager
       @_exprChangeListeners = []
 
       name = @output.name
-      info = null
-
-      if lastState?[name]?
-        @attributeValue = lastState[name]
-
+      @attributeValue = if lastState?[name]? then lastState[name] else 0
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")
@@ -61,7 +56,9 @@ module.exports = (env) ->
       @_createGetter(name, =>
         return Promise.resolve @attributeValue
       )
+      super()
 
+      info = null
       evaluate = ( =>
         # wait till VariableManager is ready
         return Promise.delay(10).then( =>
@@ -90,7 +87,6 @@ module.exports = (env) ->
         )
       )
       evaluate()
-      super()
 
     _setAttribute: (attributeName, value) ->
       @attributeValue = value
@@ -106,17 +102,12 @@ module.exports = (env) ->
       @output = config.output
       @filterValues = []
       @mean = 0.0
-      @attributeValue = null
 
       @varManager = plugin.framework.variableManager #so you get the variableManager
       @_exprChangeListeners = []
 
       name = @output.name
-      info = null
-
-      if lastState?[name]?
-        @attributeValue = lastState[name]
-
+      @attributeValue = if lastState?[name]? then lastState[name] else 0
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")
@@ -135,7 +126,9 @@ module.exports = (env) ->
       @_createGetter(name, =>
         return Promise.resolve @attributeValue
       )
+      super()
 
+      info = null
       evaluate = ( =>
         # wait till VariableManager is ready
         return Promise.delay(10).then( =>
@@ -170,7 +163,6 @@ module.exports = (env) ->
         )
       )
       evaluate()
-      super()
 
     _setAttribute: (attributeName, value) ->
       @attributeValue = value
