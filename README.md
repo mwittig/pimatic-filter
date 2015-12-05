@@ -10,6 +10,8 @@ To date, the plugin provides two basic filter types. More filters can be added o
 you're welcome to make contributions. If you're not familiar with programming please open issue to describe your  
 request as detailed as possible including references to background material and possibly an algorithmic description.
 
+For a history of changes see also the [release log](https://github.com/mwittig/pimatic-filter/releases).
+
 ## Plugin Configuration
 
 You can load the plugin by editing your `config.json` to include the following in the `plugins` section.
