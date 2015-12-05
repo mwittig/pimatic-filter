@@ -18,7 +18,7 @@ module.exports = {
             type: "string"
           expression:
             description: "
-                The expression to use to get the input value. Can be just a variable name ($myVar),
+                The expression used to get the input value. Can be just a variable name ($myVar),
                 a calculation ($myVar + 10) or a string interpolation (\"Test: {$myVar}!\")
                 "
             type: "string"

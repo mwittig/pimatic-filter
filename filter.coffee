@@ -73,7 +73,7 @@ module.exports = (env) ->
             else
               assert false
         ).then((val) =>
-          if val
+          if val?
             val = Number(val)
             @filterValues.push val
             @sum = @sum + val
@@ -83,7 +83,12 @@ module.exports = (env) ->
 
             env.logger.debug @mean, @filterValues
             @_setAttribute name, @mean
+          else
+            env.logger.error "Error on device #{@config.id}: Input value is null or undefined"
+
           return @attributeValue
+        ).catch((error) =>
+          env.logger.error "Error on device #{@config.id}:", error.message
         )
       )
       evaluate()
@@ -143,7 +148,7 @@ module.exports = (env) ->
             else
               assert false
         ).then((val) =>
-          if val
+          if val?
             val = Number(val)
             @filterValues.push val
             if @filterValues.length > @size
@@ -159,7 +164,12 @@ module.exports = (env) ->
 
             env.logger.debug @mean, @filterValues, processedValues
             @_setAttribute name, @mean
+          else
+            env.logger.error "Error on device #{@config.id}: Input value is null or undefined"
+
           return @attributeValue
+        ).catch((error) =>
+          env.logger.error "Error on device #{@config.id}:", error.message
         )
       )
       evaluate()
