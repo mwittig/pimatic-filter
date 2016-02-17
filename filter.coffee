@@ -38,6 +38,7 @@ module.exports = (env) ->
 
       name = @output.name
       @attributeValue = if lastState?[name]? then lastState[name] else 0
+      @attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")
@@ -113,6 +114,7 @@ module.exports = (env) ->
 
       name = @output.name
       @attributeValue = if lastState?[name]? then lastState[name] else 0
+      @attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
         label: (if @output.label? then @output.label else "$#{name}")
