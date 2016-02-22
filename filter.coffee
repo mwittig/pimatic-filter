@@ -33,7 +33,7 @@ module.exports = (env) ->
       @sum = 0.0
       @mean = 0.0
 
-      @varManager = plugin.framework.variableManager #so you get the variableManager
+      @varManager = plugin.framework.variableManager
       @_exprChangeListeners = []
 
       name = @output.name
@@ -74,18 +74,15 @@ module.exports = (env) ->
             else
               assert false
         ).then((val) =>
-          if val?
-            val = Number(val)
-            @filterValues.push val
-            @sum = @sum + val
-            if @filterValues.length > @size
-              @sum = @sum - @filterValues.shift()
-            @mean = @sum / @filterValues.length
+          val = @_getNumber(val)
+          @filterValues.push val
+          @sum = @sum + val
+          if @filterValues.length > @size
+            @sum = @sum - @filterValues.shift()
+          @mean = @sum / @filterValues.length
 
-            env.logger.debug @mean, @filterValues
-            @_setAttribute name, @mean
-          else
-            env.logger.error "Error on device #{@config.id}: Input value is null or undefined"
+          env.logger.debug @mean, @filterValues
+          @_setAttribute name, @mean
 
           return @attributeValue
         ).catch((error) =>
@@ -93,6 +90,17 @@ module.exports = (env) ->
         )
       )
       evaluate()
+
+    _getNumber: (value) ->
+      if value?
+        numValue = Number value
+        unless isNaN numValue
+          return numValue
+        else
+        errorMessage = "Input value is not a number: #{value}"
+      else
+        errorMessage = "Input value is null or undefined"
+      throw new Error errorMessage
 
     _setAttribute: (attributeName, value) ->
       @attributeValue = value
@@ -150,24 +158,21 @@ module.exports = (env) ->
             else
               assert false
         ).then((val) =>
-          if val?
-            val = Number(val)
-            @filterValues.push val
-            if @filterValues.length > @size
-              @filterValues.shift()
+          val = @_getNumber(val)
+          @filterValues.push val
+          if @filterValues.length > @size
+            @filterValues.shift()
 
-            processedValues = _.clone(@filterValues)
-            if processedValues.length > 2
-              processedValues.sort()
-              processedValues.shift()
-              processedValues.pop()
+          processedValues = _.clone(@filterValues)
+          if processedValues.length > 2
+            processedValues.sort()
+            processedValues.shift()
+            processedValues.pop()
 
-            @mean = processedValues.reduce(((a, b) => return a + b), 0) / processedValues.length
+          @mean = processedValues.reduce(((a, b) => return a + b), 0) / processedValues.length
 
-            env.logger.debug @mean, @filterValues, processedValues
-            @_setAttribute name, @mean
-          else
-            env.logger.error "Error on device #{@config.id}: Input value is null or undefined"
+          env.logger.debug @mean, @filterValues, processedValues
+          @_setAttribute name, @mean
 
           return @attributeValue
         ).catch((error) =>
@@ -175,6 +180,17 @@ module.exports = (env) ->
         )
       )
       evaluate()
+
+    _getNumber: (value) ->
+      if value?
+        numValue = Number value
+        unless isNaN numValue
+          return numValue
+        else
+        errorMessage = "Input value is not a number: #{value}"
+      else
+        errorMessage = "Input value is null or undefined"
+      throw new Error errorMessage
 
     _setAttribute: (attributeName, value) ->
       @attributeValue = value

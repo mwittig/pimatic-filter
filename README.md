@@ -51,7 +51,6 @@ Note, however, the resulting value must be a number to be processed by the filte
             "label": "Temperature",
             "expression": "$unipi-2.temperature",
             "acronym": "T",
-            "type": "number",
             "unit": "°C"
         }
     }
@@ -82,7 +81,6 @@ Note, however, the resulting value must be a number to be processed by the filte
             "name": "Temperature",
             "expression": "$unipi-2.temperature",
             "acronym": "T",
-            "type": "number",
             "unit": "°C"
         }
     }
