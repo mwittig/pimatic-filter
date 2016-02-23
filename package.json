@@ -18,7 +18,7 @@
     "Digital Smoothing",
     "Pimatic"
   ],
-  "version": "0.8.5",
+  "version": "0.8.6",
   "homepage": "https://github.com/mwittig/pimatic-filter/tree/master",
   "private": false,
   "repository": {
