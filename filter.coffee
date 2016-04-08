@@ -25,10 +25,10 @@ module.exports = (env) ->
   class SimpleMovingAverageFilter extends env.devices.Device
 
     constructor: (@config, lastState) ->
-      @id = config.id
-      @name = config.name
-      @size = config.size
-      @output = config.output
+      @id = @config.id
+      @name = @config.name
+      @size = @config.size
+      @output = @config.output
       @filterValues = []
       @sum = 0.0
       @mean = 0.0
@@ -110,10 +110,10 @@ module.exports = (env) ->
   class SimpleTruncatedMeanFilter extends env.devices.Device
 
     constructor: (@config, lastState) ->
-      @id = config.id
-      @name = config.name
-      @size = config.size
-      @output = config.output
+      @id = @config.id
+      @name = @config.name
+      @size = @config.size
+      @output = @config.output
       @filterValues = []
       @mean = 0.0
 
