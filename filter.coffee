@@ -91,6 +91,10 @@ module.exports = (env) ->
       )
       evaluate()
 
+    destroy: () ->
+      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
+      super()
+
     _getNumber: (value) ->
       if value?
         numValue = Number value
@@ -180,6 +184,10 @@ module.exports = (env) ->
         )
       )
       evaluate()
+
+    destroy: () ->
+      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
+      super()
 
     _getNumber: (value) ->
       if value?
