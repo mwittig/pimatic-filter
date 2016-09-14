@@ -37,7 +37,7 @@ module.exports = (env) ->
       @_exprChangeListeners = []
 
       name = @output.name
-      @attributeValue = if lastState?[name]? then lastState[name] else 0
+      @attributeValue = if lastState?[name]? then lastState[name].value else 0
       @attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
@@ -125,7 +125,7 @@ module.exports = (env) ->
       @_exprChangeListeners = []
 
       name = @output.name
-      @attributeValue = if lastState?[name]? then lastState[name] else 0
+      @attributeValue = if lastState?[name]? then lastState[name].value else 0
       @attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
