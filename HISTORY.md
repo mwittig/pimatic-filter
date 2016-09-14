@@ -1,6 +1,6 @@
 # Release History
 
-* 2010914, V0.8.9
+* 2016914, V0.8.9
     * Fixed erroneous assignment of lastState to attribute values on device initialization, issue #4
     * Added Release History
     
