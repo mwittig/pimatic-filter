@@ -20,6 +20,12 @@ module.exports = (env) ->
           return new SimpleTruncatedMeanFilter(config, lastState)
       })
 
+      @framework.deviceManager.registerDeviceClass("SimpleRateOfChangeFilter", {
+        configDef: deviceConfigDef.SimpleRateOfChangeFilter,
+        createCallback: (config, lastState) =>
+          return new SimpleRateOfChangeFilter(config, lastState)
+      })
+
   plugin = new FilterPlugin
 
   class SimpleMovingAverageFilter extends env.devices.Device
@@ -177,6 +183,111 @@ module.exports = (env) ->
 
           env.logger.debug @mean, @filterValues, processedValues
           @_setAttribute name, @mean
+
+          return @attributeValue
+        ).catch((error) =>
+          env.logger.error "Error on device #{@config.id}:", error.message
+        )
+      )
+      evaluate()
+
+    destroy: () ->
+      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
+      super()
+
+    _getNumber: (value) ->
+      if value?
+        numValue = Number value
+        unless isNaN numValue
+          return numValue
+        else
+        errorMessage = "Input value is not a number: #{value}"
+      else
+        errorMessage = "Input value is null or undefined"
+      throw new Error errorMessage
+
+    _setAttribute: (attributeName, value) ->
+      @attributeValue = value
+      @emit attributeName, value
+
+  
+  class SimpleRateOfChangeFilter extends env.devices.Device
+
+    constructor: (@config, lastState) ->
+      @id = @config.id
+      @name = @config.name
+      @size = @config.size
+      @output = @config.output
+      @timeBase = @config.timeBase
+      @previousValue = 0.0
+      @previousTime = 0
+      @rateOfChange = 0.0
+
+      @varManager = plugin.framework.variableManager #so you get the variableManager
+      @_exprChangeListeners = []
+
+      name = @output.name
+      @attributeValue = if lastState?[name]? then lastState[name].value else 0
+      @attributes = _.cloneDeep(@attributes)
+      @attributes[name] = {
+        description: name
+        label: (if @output.label? then @output.label else "$#{name}")
+        type: "number"
+      }
+
+      if @output.unit? and @output.unit.length > 0
+        @attributes[name].unit = @output.unit
+
+      if @output.discrete?
+        @attributes[name].discrete = @output.discrete
+
+      if @output.acronym?
+        @attributes[name].acronym = @output.acronym
+
+      @_createGetter(name, =>
+        return Promise.resolve @attributeValue
+      )
+      super()
+
+      info = null
+      evaluate = ( =>
+        # wait till VariableManager is ready
+        return Promise.delay(10).then( =>
+          unless info?
+            info = @varManager.parseVariableExpression(@output.expression)
+            @varManager.notifyOnChange(info.tokens, evaluate)
+            @_exprChangeListeners.push evaluate
+
+          switch info.datatype
+            when "numeric" then @varManager.evaluateNumericExpression(info.tokens)
+            when "string" then @varManager.evaluateStringExpression(info.tokens)
+            else
+              assert false
+        ).then((val) =>
+          val = @_getNumber(val)
+          time = new Date() / 1000
+          valDifference = (val - @previousValue)
+          timeDifference = (time - @previousTime)
+
+          @rateOfChange =  valDifference / timeDifference
+
+
+          if @timeBase == "minute"
+            @rateOfChange = @rateOfChange / 60
+          else if @timeBase == "hour"
+            @rateOfChange = @rateOfChange / 60 / 60
+
+          env.logger.debug "name: #{@name}"
+          env.logger.debug "valDifference: #{valDifference}"
+          env.logger.debug "timeDifference: #{timeDifference}"
+          env.logger.debug "rateOfChange: #{@rateOfChange}"
+          
+          @previousTime = time
+          @previousValue = val
+
+          if @previousTime == 0
+            #we skip the first update because we don't have previous values yet
+            @_setAttribute name, @rateOfChange
 
           return @attributeValue
         ).catch((error) =>

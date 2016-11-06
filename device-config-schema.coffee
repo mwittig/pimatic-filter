@@ -82,4 +82,45 @@ module.exports = {
             type: "string"
             required: false
   }
+  SimpleRateOfChangeFilter: {
+    title: "SimpleRateOfChangeFilter config options"
+    type: "object"
+    extensions: ["xLink", "xAttributeOptions"]
+    properties:
+      timeBase:
+        description: "Defines if rate of change is output as per second, minute or hour value"
+        type: "string"
+        default: "minute"
+      output:
+        type: "object"
+        required: ["name", "expression"]
+        properties:
+          name:
+            description: "Name for the corresponding output attribute."
+            type: "string"
+          expression:
+            description: "
+                The expression to use to get the input value. Can be just a variable name ($myVar),
+                a calculation ($myVar + 10) or a string interpolation (\"Test: {$myVar}!\")
+                "
+            type: "string"
+          unit:
+            description: "The unit of the variable. Only works if type is a number."
+            type: "string"
+            required: false
+          label:
+            description: "A custom label to use in the frontend."
+            type: "string"
+            required: false
+          discrete:
+            description: "
+                Should be set to true if the value does not change continuously over time.
+                "
+            type: "boolean"
+            required: false
+          acronym:
+            description: "Acronym to show as value label in the frontend"
+            type: "string"
+            required: false
+  }
 }
