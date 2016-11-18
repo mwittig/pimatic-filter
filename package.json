@@ -37,6 +37,7 @@
   ],
   "configSchema": "filter-config-schema.coffee",
   "dependencies": {
+    "pimatic-plugin-commons": "^0.9.3"
   },
   "peerDependencies": {
     "pimatic": ">=0.8.0 <1.0.0"

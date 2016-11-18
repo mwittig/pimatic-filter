@@ -9,6 +9,15 @@ module.exports = {
         description: "Size of the sliding window of samples used for the calculation"
         type: "number"
         default: "5"
+      stats:
+        description: "Provide attributes for additional statistics"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          enum: [
+            "min", "max", "mean", "increase", "percentChange", "source"
+          ]
       output:
         type: "object"
         required: ["name", "expression"]
@@ -23,9 +32,11 @@ module.exports = {
                 "
             type: "string"
           unit:
-            description: "The unit of the variable. Only works if type is a number."
+            description: """"
+                The unit of the output variable. If set to auto unit will be derived from input variable
+            """
             type: "string"
-            required: false
+            default: "auto"
           label:
             description: "A custom label to use in the frontend."
             type: "string"
@@ -50,6 +61,15 @@ module.exports = {
         description: "Size of the sliding window of samples used for the calculation"
         type: "number"
         default: "5"
+      stats:
+        description: "Provide attributes for additional statistics"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          enum: [
+            "min", "max", "mean", "increase", "percentChange", "source"
+          ]
       output:
         type: "object"
         required: ["name", "expression"]
@@ -64,9 +84,11 @@ module.exports = {
                 "
             type: "string"
           unit:
-            description: "The unit of the variable. Only works if type is a number."
+            description: """"
+                The unit of the output variable. If set to auto unit will be derived from input variable
+            """
             type: "string"
-            required: false
+            default: "auto"
           label:
             description: "A custom label to use in the frontend."
             type: "string"
@@ -89,8 +111,19 @@ module.exports = {
     properties:
       timeBase:
         description: "Defines if rate of change is output as per second, minute or hour value"
-        type: "string"
+        enum: [
+          "millisecond", "second", "minute", "hour"
+        ]
         default: "minute"
+      stats:
+        description: "Provide attributes for additional statistics"
+        type: "array"
+        default: []
+        format: "table"
+        items:
+          enum: [
+            "min", "max", "mean", "increase", "percentChange", "source"
+          ]
       output:
         type: "object"
         required: ["name", "expression"]
@@ -105,9 +138,11 @@ module.exports = {
                 "
             type: "string"
           unit:
-            description: "The unit of the variable. Only works if type is a number."
+            description: """"
+                The unit of the output variable. If set to auto unit will be derived from input variable
+            """
             type: "string"
-            required: false
+            default: "auto"
           label:
             description: "A custom label to use in the frontend."
             type: "string"
