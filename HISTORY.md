@@ -1,7 +1,7 @@
 # Release History
 
 * 20161118, V0.9.0
-    * Added new filter for Simple Moving Average contributed by @thexperiments
+    * Added new filter for Simple Rate of Change contributed by @thexperiments
     * Support for statistical attributes which can be added easily to the device configuration, issue #7
     * Refactoring
     * Dropped support for node 0.10 (pimatic 0.8)
