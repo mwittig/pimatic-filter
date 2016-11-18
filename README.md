@@ -66,7 +66,7 @@ input attribute.
 
 ### Simple Truncated Mean
 
-The Simple Truncated Mean is a truncated mean, where the highest and lowest value of a given number of previous
+The Simple Truncated Mean filter is a truncated mean, where the highest and lowest value of a given number of previous
 sensor values is disregarded (truncated) and the remaining values are used to calculate the arithmetic mean. For a
 general discussion see [Wikipedia on Truncated Mean](https://en.wikipedia.org/wiki/Truncated_mean).
 
@@ -97,10 +97,10 @@ input attribute.
     }
 ```
 
-### Simple Moving Average
+### Simple Rate of Change
 
-The Simple Moving Average provides the relative rate of value change per minute. It calculates the difference of two 
-attribute value updates and divides it by the time difference of the updates. The rate scale can be changed 
+The Simple Rate of Change filter provides the relative rate of value change per minute. It calculates the difference of 
+two attribute value updates and divides it by the time difference of the updates. The rate scale can be changed 
 from "minute" to "millisecond", "second" or "hour" by setting the "timeBase" property (see example below). Generally, 
 it can be used to detect an unusual value change. An example use case for the Simple Moving Average is a humidity 
 sensor in the bathroom where the rate of value change is used to detect if someone is taking a shower or the 
