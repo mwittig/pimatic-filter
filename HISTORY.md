@@ -1,6 +1,13 @@
 # Release History
 
-* 2016914, V0.8.9
+* 20161118, V0.9.0
+    * Added new filter for Simple Moving Average contributed by @thexperiments
+    * Support for statistical attributes which can be added easily to the device configuration, issue #7
+    * Refactoring
+    * Dropped support for node 0.10 (pimatic 0.8)
+    * Revised README
+
+* 20160914, V0.8.9
     * Fixed erroneous assignment of lastState to attribute values on device initialization, issue #4
     * Added Release History
     
