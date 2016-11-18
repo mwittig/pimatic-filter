@@ -1,7 +1,5 @@
 # pimatic-filter
 
-# pimatic-filter
-
 [![Npm Version](https://badge.fury.io/js/pimatic-filter.svg)](http://badge.fury.io/js/pimatic-filter)
 [![Build Status](https://travis-ci.org/mwittig/pimatic-filter.svg?branch=master)](https://travis-ci.org/mwittig/pimatic-filter)
 [![Dependency Status](https://david-dm.org/mwittig/pimatic-filter.svg)](https://david-dm.org/mwittig/pimatic-filter)
