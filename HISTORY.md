@@ -19,7 +19,7 @@
     * Updated peerDependencies property for compatibility with pimatic 0.9
 
 * 20160218, V0.8.6
-    * Improved errir for handling for parsed expression values, issue #2
+    * Improved error for handling for parsed expression values, issue #2
     * Corrected device-config-schema: "unit", "label", and "discrete" are now optional as described in README, issue #2
     * Removed "type" property from example in README, issue #2
 
