@@ -1,5 +1,9 @@
 # Release History
 
+* 20161128, V0.9.1
+    * Fixed setting unit from source attribute which caused an 
+      initialization problem with the VariableManager, issue #11 
+    * Refactoring
 * 20161118, V0.9.0
     * Added new filter for Simple Rate of Change contributed by @thexperiments
     * Support for statistical attributes which can be added easily to the device configuration, issue #7
