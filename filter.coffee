@@ -113,9 +113,6 @@ module.exports = (env) ->
       @output = @config.output
       @varManager = plugin.framework.variableManager #so you get the variableManager
 
-      info = @varManager.parseVariableExpression(@output.expression)
-      sourceUnit = @varManager.inferUnitOfExpression(info.tokens)
-
       name = @output.name
       @outputAttributeValue = if lastState?[name]? then lastState[name].value else null
       @attributes = _.cloneDeep(@attributes)
@@ -126,11 +123,14 @@ module.exports = (env) ->
       }
 
       if @output.unit? and @output.unit.length > 0
-        unit = @output.unit
-        if unit is 'auto'
-          unit = sourceUnit
-          unit += '/' + @timeBase if unit? and @timeBase?
-        @attributes[name].unit = unit
+        unless @output.unit is 'auto'
+          @attributes[name].unit = @output.unit
+        else
+          @_deferredUpdate () =>
+            info = @varManager.parseVariableExpression(@output.expression)
+            unit = @varManager.inferUnitOfExpression(info.tokens)
+            unit += '/' + @timeBase if unit? and @timeBase?
+            @attributes[@output.name].unit = unit
 
       if @output.discrete?
         @attributes[name].discrete = @output.discrete
@@ -141,7 +141,7 @@ module.exports = (env) ->
       @_createGetter(name, =>
         return Promise.resolve @outputAttributeValue
       )
-      
+
       # initialize stats attributes
       for attributeName in @config.stats
         do (attributeName) =>
@@ -153,7 +153,13 @@ module.exports = (env) ->
               acronym: properties.acronym if properties.acronym?
 
             if properties.unit?
-              @attributes[attributeName].unit = if properties.unit is 'source' then sourceUnit else properties.unit
+              if properties.unit isnt 'source'
+                @attributes[attributeName].unit = properties.unit
+              else
+                @_deferredUpdate () =>
+                  info = @varManager.parseVariableExpression(@output.expression)
+                  sourceUnit = @varManager.inferUnitOfExpression(info.tokens)
+                  @attributes[attributeName].unit = sourceUnit
 
             defaultValue = null # if properties.type is types.number then 0.0 else '-'
             @statsAttributeValues.values[attributeName] = lastState?[attributeName]?.value or defaultValue
@@ -193,6 +199,12 @@ module.exports = (env) ->
         result = @math[key] if v? then [v, val] else [val]
         @statsAttributeValues.emit key, result
 
+    _deferredUpdate: (update) ->
+      if @varManager.inited
+        update()
+      else
+        @varManager.waitForInit().then => update()
+
     _getNumber: (value) ->
       if value?
         numValue = Number value
@@ -216,7 +228,7 @@ module.exports = (env) ->
       @filterValues = []
       @sum = 0.0
       @mean = 0.0
-      @math.mean = (values) => @mean
+      @math.mean = () => @mean
 
       @_exprChangeListeners = []
       super(@config, lastState)
@@ -224,7 +236,7 @@ module.exports = (env) ->
       info = null
       evaluate = ( =>
         # wait till VariableManager is ready
-        return Promise.delay(10).then( =>
+        return @varManager.waitForInit().then( =>
           unless info?
             info = @varManager.parseVariableExpression(@output.expression)
             @varManager.notifyOnChange(info.tokens, evaluate)
@@ -243,13 +255,12 @@ module.exports = (env) ->
             @sum = @sum - @filterValues.shift()
           @mean = @sum / @filterValues.length
 
-          env.logger.debug @mean, @filterValues
           @_setAttribute @output.name, @mean
           @_updateStats val
 
           return @outputAttributeValue
         ).catch((error) =>
-          env.logger.error "Error on device #{@config.id}:", error.message
+          @base.error "Error on device #{@config.id}:", error.message
         )
       )
       evaluate()
@@ -267,7 +278,7 @@ module.exports = (env) ->
       @size = @config.size
       @filterValues = []
       @mean = 0.0
-      @math.mean = (values) => @mean
+      @math.mean = () => @mean
 
       @_exprChangeListeners = []
 
@@ -276,7 +287,7 @@ module.exports = (env) ->
       info = null
       evaluate = ( =>
         # wait till VariableManager is ready
-        return Promise.delay(10).then( =>
+        return @varManager.waitForInit().then( =>
           unless info?
             info = @varManager.parseVariableExpression(@output.expression)
             @varManager.notifyOnChange(info.tokens, evaluate)
@@ -300,13 +311,12 @@ module.exports = (env) ->
             processedValues.pop()
 
           @mean = processedValues.reduce(((a, b) => return a + b), 0) / processedValues.length
-          env.logger.debug @mean, @filterValues, processedValues
           @_setAttribute @output.name, @mean
           @_updateStats val
 
           return @outputAttributeValue
         ).catch((error) =>
-          env.logger.error "Error on device #{@config.id}:", error.message
+          @base.error "Error on device #{@config.id}:", error.message
         )
       )
       evaluate()
@@ -315,7 +325,7 @@ module.exports = (env) ->
       @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
       super()
 
-  
+
   class SimpleRateOfChangeFilter extends FilterBase
 
     constructor: (@config, lastState) ->
@@ -335,7 +345,7 @@ module.exports = (env) ->
       info = null
       evaluate = ( =>
         # wait till VariableManager is ready
-        return Promise.delay(10).then( =>
+        return @varManager.waitForInit().then( =>
           unless info?
             info = @varManager.parseVariableExpression(@output.expression)
             @varManager.notifyOnChange(info.tokens, evaluate)
@@ -359,13 +369,13 @@ module.exports = (env) ->
 
           @rateOfChange =  valDifference / timeDifference
 
-          env.logger.debug "name: #{@name}"
-          env.logger.debug "output attribute: #{@output.name}"
-          env.logger.debug "valDifference: #{valDifference}"
-          env.logger.debug "timeDifference: #{timeDifference}"
-          env.logger.debug "rateOfChange: #{@rateOfChange}"
+          @base.debug "name: #{@name}"
+          @base.debug "output attribute: #{@output.name}"
+          @base.debug "valDifference: #{valDifference}"
+          @base.debug "timeDifference: #{timeDifference}"
+          @base.debug "rateOfChange: #{@rateOfChange}"
 
-          env.logger.debug "@previousTime: #{@previousTime}"
+          @base.debug "@previousTime: #{@previousTime}"
           unless @previousTime is 0
             #we skip the first update because we don't have previous values yet
             @_setAttribute @output.name, @rateOfChange
@@ -376,7 +386,7 @@ module.exports = (env) ->
 
           return @outputAttributeValue
         ).catch((error) =>
-          env.logger.error "Error on device #{@config.id}:", error.message
+          @base.error "Error on device #{@config.id}:", error.message
         )
       )
       evaluate()
