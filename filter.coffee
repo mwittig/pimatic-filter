@@ -3,6 +3,7 @@ module.exports = (env) ->
   Promise = env.require 'bluebird'
   types = env.require('decl-api').types
   assert = env.require 'cassert'
+  M = env.matcher
   _ = env.require('lodash')
   commons = require('pimatic-plugin-commons')(env)
 
@@ -32,6 +33,8 @@ module.exports = (env) ->
         createCallback: (config, lastState) =>
           return new SimpleRateOfChangeFilter(config, lastState)
       })
+
+      @framework.ruleManager.addActionProvider(new FilterActionProvider @framework, @config)
 
   plugin = new FilterPlugin
 
@@ -118,7 +121,7 @@ module.exports = (env) ->
       @attributes = _.cloneDeep(@attributes)
       @attributes[name] = {
         description: name
-        label: (if @output.label? then @output.label else "$#{name}")
+        label: (if @output.label? then @output.label else "#{name}")
         type: "number"
       }
 
@@ -167,7 +170,7 @@ module.exports = (env) ->
             @statsAttributeValues.on attributeName, ((value) =>
               @base.debug "Received update for attribute #{attributeName}: #{value}"
               @statsAttributeValues.values[attributeName] = value
-              @emit attributeName, value if value?
+              @emit attributeName, if value? then value else 0
             )
 
             @_createGetter(attributeName, =>
@@ -218,7 +221,7 @@ module.exports = (env) ->
 
     resetStats: () ->
       for own key of @statsAttributeValues.values
-        @statsAttributeValues.emit key, null
+        @statsAttributeValues.emit key, null unless key is 'src'
 
   class SimpleMovingAverageFilter extends FilterBase
     constructor: (@config, lastState) ->
@@ -395,5 +398,63 @@ module.exports = (env) ->
       @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
       super()
 
+  class FilterActionProvider extends env.actions.ActionProvider
+    constructor: (@framework) ->
+
+    parseAction: (input, context) =>
+
+      filterDevices = _(@framework.deviceManager.devices).values().filter(
+        (device) => (
+          device.hasAction("resetStats")
+        )
+      ).value()
+
+      device = null
+      action = null
+      match = null
+
+      m = M(input, context).match(['reset '], (m, a) =>
+        m.matchDevice(filterDevices, (m, d) ->
+          last = m.match(' stats', {optional: yes})
+          if last.hadMatch()
+            # Already had a match with another device?
+            if device? and device.id isnt d.id
+              context?.addError(""""#{input.trim()}" is ambiguous.""")
+              return
+            device = d
+            action = a.trim()
+            match = last.getFullMatch()
+        )
+      )
+
+      if match?
+        assert device?
+        assert action in ['reset']
+        assert typeof match is "string"
+        return {
+          token: match
+          nextInput: input.substring(match.length)
+          actionHandler: new FilterActionHandler(device)
+        }
+
+        return null
+
+  class FilterActionHandler extends env.actions.ActionHandler
+    constructor: (@device) ->
+
+    setup: ->
+      @dependOnDevice(@device)
+      super()
+
+    # ### executeAction()
+    executeAction: (simulate) =>
+      return (
+        if simulate
+          Promise.resolve __("would reset %s", @device.name)
+        else
+          @device.resetStats().then( => __("reset %s", @device.name) )
+      )
+    # ### hasRestoreAction()
+    hasRestoreAction: -> false
 
   return plugin
