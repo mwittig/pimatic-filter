@@ -147,6 +147,8 @@ shown in the screenshot below.
 
 ![Screenshot](https://github.com/mwittig/pimatic-filter/raw/master/assets/screenshots/screenshot-device-editor.png)
 
+Statistical attributes can be reset by executing the `reset` rule action on the device.
+
 ## History
 
 See [Release History](https://github.com/mwittig/pimatic-filter/blob/master/HISTORY.md).
