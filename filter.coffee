@@ -114,6 +114,7 @@ module.exports = (env) ->
       @debug = plugin.debug || false
       @base = commons.base @, @config.class
       @output = @config.output
+      @inputValue = 0
       @varManager = plugin.framework.variableManager #so you get the variableManager
 
       name = @output.name
@@ -197,6 +198,7 @@ module.exports = (env) ->
       @emit attributeName, value
 
     _updateStats: (val) ->
+      @inputValue = val if val?
       for own key of @statsAttributeValues.values
         v = @statsAttributeValues.values[key]
         result = @math[key] if v? then [v, val] else [val]
@@ -222,6 +224,8 @@ module.exports = (env) ->
     resetStats: () ->
       for own key of @statsAttributeValues.values
         @statsAttributeValues.emit key, null unless key is 'src'
+        @statsAttributeValues.emit key, @inputValue
+      Promise.resolve()
 
   class SimpleMovingAverageFilter extends FilterBase
     constructor: (@config, lastState) ->
