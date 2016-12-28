@@ -1,11 +1,13 @@
 # Release History
 
+* 20161228, V0.9.3
+    * stats attributes are now reset to the last input value processed
+    * fixed resetStats did not return promise
 * 20161227, V0.9.2
     * added reset action provider
     * fixed filter default output attribute label
     * fixed resetStats did not update display
     * excluded 'src' attribute from reset,
-
 * 20161128, V0.9.1
     * Fixed setting unit from source attribute which caused an 
       initialization problem with the VariableManager, issue #11 
