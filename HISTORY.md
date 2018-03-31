@@ -1,13 +1,17 @@
 # Release History
 
+* 20180331, V0.9.4
+    * Added support for time-based update of the filter variable
+    * Dependency updates
+    * Refactoring
 * 20161228, V0.9.3
-    * stats attributes are now reset to the last input value processed
-    * fixed resetStats did not return promise
+    * Stats attributes are now reset to the last input value processed
+    * Fixed resetStats did not return promise
 * 20161227, V0.9.2
-    * added reset action provider
-    * fixed filter default output attribute label
-    * fixed resetStats did not update display
-    * excluded 'src' attribute from reset,
+    * Added reset action provider
+    * Fixed filter default output attribute label
+    * Fixed resetStats did not update display
+    * Excluded 'src' attribute from reset,
 * 20161128, V0.9.1
     * Fixed setting unit from source attribute which caused an 
       initialization problem with the VariableManager, issue #11 
