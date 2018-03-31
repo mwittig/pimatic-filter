@@ -165,7 +165,7 @@ Statistical attributes can be reset by executing the `reset` rule action on the 
 By default, the filter expression for the output attribute is only updated if one of the variables used as part of the
 filter expression have been updated. By setting the device configuration property `timeBasedUpdates` to `true` a 
 time-based update scheme will be used. This will evaluate the expression in regular time intervals. The time 
-interval is defined by the property `updateInterval` which is set to a number and the property `updateScale? which 
+interval is defined by the property `updateInterval` which is set to a number and the property `updateScale` which 
 is one of "milliseconds", "seconds", "minutes", "hours", or "days".
 
 ## History
