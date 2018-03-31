@@ -116,6 +116,17 @@ module.exports = (env) ->
       @output = @config.output
       @inputValue = 0
       @varManager = plugin.framework.variableManager #so you get the variableManager
+      @_exprChangeListeners = []
+      @_updateTimerId = null
+      if @config.timeBasedUpdates
+        switch config.updateScale
+          when 'days' then @_updateTimeout = @config.updateInterval * 86400000
+          when 'hours' then @_updateTimeout = @config.updateInterval * 3600000
+          when 'minutes' then @_updateTimeout = @config.updateInterval * 60000
+          when 'seconds' then @_updateTimeout = @config.updateInterval * 1000
+          else @_updateTimeout = @config.updateInterval * 1000
+      else
+        @_updateTimeout = 0
 
       name = @output.name
       @outputAttributeValue = if lastState?[name]? then lastState[name].value else null
@@ -191,7 +202,33 @@ module.exports = (env) ->
 
     destroy: () ->
       plugin.framework.removeListener 'deviceChanged', @resetStatsHandler
+      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
+      clearTimeout @_updateTimerId if @_updateTimerId?
       super()
+
+    _registerUpdateHandler: (updateHandler) ->
+      update = () =>
+        # wait till VariableManager is ready
+        return @varManager.waitForInit().then( =>
+          unless @_info?
+            @_info = @varManager.parseVariableExpression(@output.expression)
+            unless  @_updateTimeout is 0
+              @_updateTimerId = setTimeout update, @_updateTimeout
+            else
+              @varManager.notifyOnChange(@_info.tokens, update)
+              @_exprChangeListeners.push update
+
+          switch @_info.datatype
+            when "numeric" then @varManager.evaluateNumericExpression(@_info.tokens)
+            when "string" then @varManager.evaluateStringExpression(@_info.tokens)
+            else
+              assert false
+        ).then((val) =>
+          return updateHandler(val)
+        ).catch((error) =>
+          @base.error "Error on device #{@config.id}:", error.message
+        )
+      update()
 
     _setAttribute: (attributeName, value) ->
       @outputAttributeValue = value
@@ -236,49 +273,27 @@ module.exports = (env) ->
       @sum = 0.0
       @mean = 0.0
       @math.mean = () => @mean
-
-      @_exprChangeListeners = []
       super(@config, lastState)
 
-      info = null
-      evaluate = ( =>
-        # wait till VariableManager is ready
-        return @varManager.waitForInit().then( =>
-          unless info?
-            info = @varManager.parseVariableExpression(@output.expression)
-            @varManager.notifyOnChange(info.tokens, evaluate)
-            @_exprChangeListeners.push evaluate
+      @_registerUpdateHandler((val) =>
+        val = @_getNumber(val)
+        @filterValues.push val
+        @sum = @sum + val
+        if @filterValues.length > @size
+          @sum = @sum - @filterValues.shift()
+        @mean = @sum / @filterValues.length
 
-          switch info.datatype
-            when "numeric" then @varManager.evaluateNumericExpression(info.tokens)
-            when "string" then @varManager.evaluateStringExpression(info.tokens)
-            else
-              assert false
-        ).then((val) =>
-          val = @_getNumber(val)
-          @filterValues.push val
-          @sum = @sum + val
-          if @filterValues.length > @size
-            @sum = @sum - @filterValues.shift()
-          @mean = @sum / @filterValues.length
+        @_setAttribute @output.name, @mean
+        @_updateStats val
 
-          @_setAttribute @output.name, @mean
-          @_updateStats val
-
-          return @outputAttributeValue
-        ).catch((error) =>
-          @base.error "Error on device #{@config.id}:", error.message
-        )
+        return @outputAttributeValue
       )
-      evaluate()
 
     destroy: () ->
-      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
       super()
 
 
   class SimpleTruncatedMeanFilter extends FilterBase
-
     constructor: (@config, lastState) ->
       @id = @config.id
       @name = @config.name
@@ -286,55 +301,32 @@ module.exports = (env) ->
       @filterValues = []
       @mean = 0.0
       @math.mean = () => @mean
-
-      @_exprChangeListeners = []
-
       super(@config, lastState)
 
-      info = null
-      evaluate = ( =>
-        # wait till VariableManager is ready
-        return @varManager.waitForInit().then( =>
-          unless info?
-            info = @varManager.parseVariableExpression(@output.expression)
-            @varManager.notifyOnChange(info.tokens, evaluate)
-            @_exprChangeListeners.push evaluate
+      @_registerUpdateHandler((val) =>
+        val = @_getNumber(val)
+        @filterValues.push val
+        if @filterValues.length > @size
+          @filterValues.shift()
 
-          switch info.datatype
-            when "numeric" then @varManager.evaluateNumericExpression(info.tokens)
-            when "string" then @varManager.evaluateStringExpression(info.tokens)
-            else
-              assert false
-        ).then((val) =>
-          val = @_getNumber(val)
-          @filterValues.push val
-          if @filterValues.length > @size
-            @filterValues.shift()
+        processedValues = _.clone(@filterValues)
+        if processedValues.length > 2
+          processedValues.sort()
+          processedValues.shift()
+          processedValues.pop()
 
-          processedValues = _.clone(@filterValues)
-          if processedValues.length > 2
-            processedValues.sort()
-            processedValues.shift()
-            processedValues.pop()
+        @mean = processedValues.reduce(((a, b) => return a + b), 0) / processedValues.length
+        @_setAttribute @output.name, @mean
+        @_updateStats val
 
-          @mean = processedValues.reduce(((a, b) => return a + b), 0) / processedValues.length
-          @_setAttribute @output.name, @mean
-          @_updateStats val
-
-          return @outputAttributeValue
-        ).catch((error) =>
-          @base.error "Error on device #{@config.id}:", error.message
-        )
+        return @outputAttributeValue
       )
-      evaluate()
 
     destroy: () ->
-      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
       super()
 
 
   class SimpleRateOfChangeFilter extends FilterBase
-
     constructor: (@config, lastState) ->
       @id = @config.id
       @name = @config.name
@@ -344,62 +336,41 @@ module.exports = (env) ->
       @previousValue = 0.0
       @previousTime = 0
       @rateOfChange = 0.0
-
-      @_exprChangeListeners = []
-
       super(@config, lastState)
 
-      info = null
-      evaluate = ( =>
-        # wait till VariableManager is ready
-        return @varManager.waitForInit().then( =>
-          unless info?
-            info = @varManager.parseVariableExpression(@output.expression)
-            @varManager.notifyOnChange(info.tokens, evaluate)
-            @_exprChangeListeners.push evaluate
+      @_registerUpdateHandler((val) =>
+        val = @_getNumber(val)
+        time = new Date()
+        switch @timeBase
+          when "second" then time /= 1000
+          when "minute" then time /= 60000
+          when "hour" then time /= 3600000
 
-          switch info.datatype
-            when "numeric" then @varManager.evaluateNumericExpression(info.tokens)
-            when "string" then @varManager.evaluateStringExpression(info.tokens)
-            else
-              assert false
-        ).then((val) =>
-          val = @_getNumber(val)
-          time = new Date()
-          switch @timeBase
-            when "second" then time /= 1000
-            when "minute" then time /= 60000
-            when "hour" then time /= 3600000
+        valDifference = val - @previousValue
+        timeDifference = time - @previousTime
 
-          valDifference = val - @previousValue
-          timeDifference = time - @previousTime
+        @rateOfChange =  valDifference / timeDifference
 
-          @rateOfChange =  valDifference / timeDifference
+        @base.debug "name: #{@name}"
+        @base.debug "output attribute: #{@output.name}"
+        @base.debug "valDifference: #{valDifference}"
+        @base.debug "timeDifference: #{timeDifference}"
+        @base.debug "rateOfChange: #{@rateOfChange}"
 
-          @base.debug "name: #{@name}"
-          @base.debug "output attribute: #{@output.name}"
-          @base.debug "valDifference: #{valDifference}"
-          @base.debug "timeDifference: #{timeDifference}"
-          @base.debug "rateOfChange: #{@rateOfChange}"
+        @base.debug "@previousTime: #{@previousTime}"
+        unless @previousTime is 0
+          #we skip the first update because we don't have previous values yet
+          @_setAttribute @output.name, @rateOfChange
 
-          @base.debug "@previousTime: #{@previousTime}"
-          unless @previousTime is 0
-            #we skip the first update because we don't have previous values yet
-            @_setAttribute @output.name, @rateOfChange
+        @_updateStats val
+        @previousTime = time
+        @previousValue = val
 
-          @_updateStats val
-          @previousTime = time
-          @previousValue = val
-
-          return @outputAttributeValue
-        ).catch((error) =>
-          @base.error "Error on device #{@config.id}:", error.message
-        )
+        return @outputAttributeValue
       )
-      evaluate()
+
 
     destroy: () ->
-      @varManager.cancelNotifyOnChange(cl) for cl in @_exprChangeListeners
       super()
 
   class FilterActionProvider extends env.actions.ActionProvider

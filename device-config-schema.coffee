@@ -51,6 +51,20 @@ module.exports = {
             description: "Acronym to show as value label in the frontend"
             type: "string"
             required: false
+      timeBasedUpdates:
+        description: "Update in regular time intervals instead on variables changes"
+        type: "boolean"
+        default: false
+      updateInterval:
+        description: "Update timer interval if timeBasedUpdates is true"
+        type: "number"
+        default: 30
+      updateScale:
+        description: "Scale for the update timer value"
+        enum: [
+          "milliseconds", "seconds", "minutes", "hours", "days"
+        ]
+        default: "seconds"
   }
   SimpleTruncatedMeanFilter: {
     title: "SimpleTruncatedMeanFilter config options"
@@ -103,6 +117,20 @@ module.exports = {
             description: "Acronym to show as value label in the frontend"
             type: "string"
             required: false
+      timeBasedUpdates:
+        description: "Update in regular time intervals instead on variables changes"
+        type: "boolean"
+        default: false
+      updateInterval:
+        description: "Update timer interval if timeBasedUpdates is true"
+        type: "number"
+        default: 30
+      updateScale:
+        description: "Scale for the update timer value"
+        enum: [
+          "milliseconds", "seconds", "minutes", "hours", "days"
+        ]
+        default: "seconds"
   }
   SimpleRateOfChangeFilter: {
     title: "SimpleRateOfChangeFilter config options"
@@ -157,5 +185,19 @@ module.exports = {
             description: "Acronym to show as value label in the frontend"
             type: "string"
             required: false
+      timeBasedUpdates:
+        description: "Update in regular time intervals instead on variables changes"
+        type: "boolean"
+        default: false
+      updateInterval:
+        description: "Update timer interval if timeBasedUpdates is true"
+        type: "number"
+        default: 30
+      updateScale:
+        description: "Scale for the update timer value"
+        enum: [
+          "milliseconds", "seconds", "minutes", "hours", "days"
+        ]
+        default: "seconds"
   }
 }

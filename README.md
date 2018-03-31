@@ -145,6 +145,14 @@ The attributes are added by setting the "stats" property of the device configura
 values. It is recommended to configure the attributes using the device editor provided with the pimatic web frontend as
 shown in the screenshot below.
 
+### Time-based Update
+
+By default, the filter expression for the output attribute is only updated if one of the variables used as part of the
+filter expression have been updated. By setting the device configuration property `timeBasedUpdates` to `true` a 
+time-based update scheme will be used. This will evaluate the expression in regular time intervals. The time 
+interval is defined by the property `updateInterval` which is set to a number and the property `updateScale? which 
+is one of "milliseconds", "seconds", "minutes", "hours", or "days".
+
 ![Screenshot](https://github.com/mwittig/pimatic-filter/raw/master/assets/screenshots/screenshot-device-editor.png)
 
 Statistical attributes can be reset by executing the `reset` rule action on the device.
