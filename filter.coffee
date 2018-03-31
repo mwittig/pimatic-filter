@@ -119,7 +119,7 @@ module.exports = (env) ->
       @_exprChangeListeners = []
       @_updateTimerId = null
       if @config.timeBasedUpdates
-        switch config.updateScale
+        switch @config.updateScale
           when 'days' then @_updateTimeout = @config.updateInterval * 86400000
           when 'hours' then @_updateTimeout = @config.updateInterval * 3600000
           when 'minutes' then @_updateTimeout = @config.updateInterval * 60000
