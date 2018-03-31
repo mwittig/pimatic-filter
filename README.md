@@ -10,11 +10,22 @@ the minimum and maximum of sensor values processed.
 
 ## Status of Implementation
 
-To date, the plugin provides three filter types. More filters can be added on request. If you wish to get involved
-you're welcome to make contributions. If you're not familiar with programming please open issue to describe your  
-request as detailed as possible including references to background material and possibly an algorithmic description.
-If you like this plugin, please consider &#x2605; starring 
-[the project on github](https://github.com/mwittig/pimatic-filter).
+To date, the plugin provides three filter types:
+* `SimpleMovingAverageFilter` provides is the unweighted mean of a given 
+  number of previous sensor values processed.
+* `SimpleTruncatedMeanFilter` provides a truncated mean, where the highest and lowest value of a 
+  given number of previous sensor values is disregarded (truncated) and the remaining values are used to 
+  calculate the arithmetic mean.
+* `SimpleRateOfChangeFilter` provides the relative rate of value change per minute.
+
+By default, all filters are updated when a variable used as part of the filter expression is updated. Alternatively, 
+a time-based update scheme can be used which will evaluate the expression in regular time intervals (see section
+"Time-based Update" below).
+
+More filters can be added on request. If you wish to get involved you're welcome to make contributions. If you're not 
+familiar with programming please open issue to describe your  request as detailed as possible including references 
+to background material and possibly an algorithmic description. If you like this plugin, please consider &#x2605; 
+starring [the project on github](https://github.com/mwittig/pimatic-filter).
 
 ## Plugin Configuration
 
@@ -121,7 +132,7 @@ input attribute followed by the "timebase" fraction denominator.
         "output": {
             "name": "rateOfChange",
             "expression": "$unipi-2.temperature",
-            "acronym": "roc",
+            "acronym": "roc"
         },
         "timeBase": "minute"
     }
@@ -145,6 +156,10 @@ The attributes are added by setting the "stats" property of the device configura
 values. It is recommended to configure the attributes using the device editor provided with the pimatic web frontend as
 shown in the screenshot below.
 
+![Screenshot](https://github.com/mwittig/pimatic-filter/raw/master/assets/screenshots/screenshot-device-editor.png)
+
+Statistical attributes can be reset by executing the `reset` rule action on the device.
+
 ### Time-based Update
 
 By default, the filter expression for the output attribute is only updated if one of the variables used as part of the
@@ -153,16 +168,12 @@ time-based update scheme will be used. This will evaluate the expression in regu
 interval is defined by the property `updateInterval` which is set to a number and the property `updateScale? which 
 is one of "milliseconds", "seconds", "minutes", "hours", or "days".
 
-![Screenshot](https://github.com/mwittig/pimatic-filter/raw/master/assets/screenshots/screenshot-device-editor.png)
-
-Statistical attributes can be reset by executing the `reset` rule action on the device.
-
 ## History
 
 See [Release History](https://github.com/mwittig/pimatic-filter/blob/master/HISTORY.md).
 
 ## License 
 
-Copyright (c) 2015-2016, Marcus Wittig and contributors. All rights reserved.
+Copyright (c) 2015-2018, Marcus Wittig and contributors. All rights reserved.
 
 [AGPL-3.0](https://github.com/mwittig/pimatic-filter/blob/master/LICENSE)
