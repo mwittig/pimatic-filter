@@ -212,11 +212,12 @@ module.exports = (env) ->
         return @varManager.waitForInit().then( =>
           unless @_info?
             @_info = @varManager.parseVariableExpression(@output.expression)
-            unless  @_updateTimeout is 0
-              @_updateTimerId = setTimeout update, @_updateTimeout
-            else
+            if @_updateTimeout is 0
               @varManager.notifyOnChange(@_info.tokens, update)
               @_exprChangeListeners.push update
+
+          unless  @_updateTimeout is 0
+            @_updateTimerId = setTimeout update, @_updateTimeout
 
           switch @_info.datatype
             when "numeric" then @varManager.evaluateNumericExpression(@_info.tokens)
