@@ -1,21 +1,29 @@
 # Release History
 
+* 20190912, V0.9.5
+    * Fixed time-based update timer didn't register on next update cycle
+    * Dependency updates
+    
 * 20180331, V0.9.4
     * Added support for time-based update of the filter variable
     * Dependency updates
     * Refactoring
+    
 * 20161228, V0.9.3
     * Stats attributes are now reset to the last input value processed
     * Fixed resetStats did not return promise
+    
 * 20161227, V0.9.2
     * Added reset action provider
     * Fixed filter default output attribute label
     * Fixed resetStats did not update display
-    * Excluded 'src' attribute from reset,
+    * Excluded 'src' attribute from reset
+    
 * 20161128, V0.9.1
     * Fixed setting unit from source attribute which caused an 
       initialization problem with the VariableManager, issue #11 
     * Refactoring
+    
 * 20161118, V0.9.0
     * Added new filter for Simple Rate of Change contributed by @thexperiments
     * Support for statistical attributes which can be added easily to the device configuration, issue #7
